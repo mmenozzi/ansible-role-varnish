@@ -16,9 +16,9 @@ Available variables are listed below, along with default values (see `defaults/m
 
 Varnish package name you want to install. See `apt-cache policy varnish` or `yum list varnish` for a listing of available candidates.
 
-    varnish_version: "5.1"
+    varnish_version: "6.4"
 
-Varnish version that should be installed. See the [Varnish Cache packagecloud.io repositories](https://packagecloud.io/varnishcache) for a listing of available versions. Some examples include: `5.1`, `5.0`, `4.1`, `4.0`, `3.0`, and `2.1`.
+Varnish version that should be installed. See the [Varnish Cache packagecloud.io repositories](https://packagecloud.io/varnishcache) for a listing of available versions. Some examples include: `6.4`, `6.3`, `6.1`, `4.1`, `3.0`, and `2.1`.
 
 	 varnish_use_packagecloud: false
 	 
@@ -36,9 +36,10 @@ Whether to use the included (simplistic) default Varnish VCL, using the backend 
 
 The default VCL file to be copied (if `varnish_use_default_vcl` is `true`). Defaults the the simple template inside `templates/default.vcl.j2`. This path should be relative to the directory from which you run your playbook.
 
+    varnish_listen_address: ""
     varnish_listen_port: "80"
 
-The port on which Varnish will listen (typically port 80).
+The address and port on which Varnish will listen. The defaults tell Varnish to listen on all interfaces on port 80, but you can specify an address and/or alternate port if desired.
 
     varnish_default_backend_host: "127.0.0.1"
     varnish_default_backend_port: "8080"
@@ -47,7 +48,7 @@ Some settings for the default "default.vcl" template that will be copied to the 
 
     varnish_limit_nofile: 131072
 
-The `nofiles` PAM limit Varnish will attempt to set for open files. The normal default is ~1024 which is much too low for Varnish usage.
+The `nofiles` PAM limit Varnish will attempt to set for open files. The normal default is 1024 which is much too low for Varnish usage.
 
     varnish_secret: "14bac2e6-1e34-4770-8078-974373b76c90"
 
@@ -77,7 +78,15 @@ Services that will be started at boot and should be running after this role is c
 
     varnish_packagecloud_repo_yum_repository_priority: "1"
 
-The `yum` priority for the Packagecloud repository used to install Varnish. Setting this explicitly forces yum to use the Packagecloud repositories to install Varnish even in environments (e.g. Amazon Linux) where other repositories may have higher priorities than the default.
+(RedHat/CentOS only) The `yum` priority for the Packagecloud repository used to install Varnish. Setting this explicitly forces yum to use the Packagecloud repositories to install Varnish even in environments (e.g. Amazon Linux) where other repositories may have higher priorities than the default.
+
+    varnish_apt_repo: deb https://packagecloud.io/varnishcache/{{ varnish_packagecloud_repo }}/{{ ansible_distribution | lower }}/ {{ ansible_distribution_release }} main
+
+(Debian/Ubuntu only) The `repo` for the apt repository.
+
+    varnish_yum_repo_baseurl: https://packagecloud.io/varnishcache/{{ varnish_packagecloud_repo }}/el/{{ ansible_distribution_major_version|int }}/$basearch
+
+(RedHat/CentOS only) The `baseurl` for the yum repository.
 
     varnish_backends:
       apache:
